@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -46,12 +47,16 @@ fun SettingsScreen(
     onOpenPrivacy: () -> Unit,
     onOpenAbout: () -> Unit,
     viewModel: SettingsViewModel = viewModel(
-        factory = AppVmFactory { container -> SettingsViewModel(container.settingsRepository) }
+        factory = AppVmFactory { container ->
+            SettingsViewModel(container.settingsRepository, container.diagnostics)
+        }
     )
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val cacheSize by viewModel.cacheSize.collectAsStateWithLifecycle()
     val message by viewModel.message.collectAsStateWithLifecycle()
+    val checks by viewModel.checks.collectAsStateWithLifecycle()
+    val checking by viewModel.checking.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(message) {
@@ -170,6 +175,45 @@ fun SettingsScreen(
                             selected = true,
                             onClick = viewModel::clearCache
                         )
+                    }
+                }
+            }
+
+            item {
+                SettingsCard(title = "CONNECTION CHECK") {
+                    Text(
+                        text = "Tests the two hosts CityWalls needs: the Wikimedia API and the image CDN.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    GlassChip(
+                        label = if (checking) "Checking…" else "Run connection check",
+                        selected = true,
+                        onClick = viewModel::runConnectionCheck
+                    )
+                    checks?.forEach { result ->
+                        Spacer(Modifier.height(10.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = if (result.ok) "OK" else "FAIL",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (result.ok) Champagne else Color(0xFFE09A9A)
+                            )
+                            Spacer(Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = result.label,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = TextPrimary
+                                )
+                                Text(
+                                    text = result.detail,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextSecondary
+                                )
+                            }
+                        }
                     }
                 }
             }

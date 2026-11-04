@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.citywalls.app.data.prefs.AppSettings
 import com.citywalls.app.data.prefs.DownloadQuality
 import com.citywalls.app.data.prefs.SettingsRepository
+import com.citywalls.app.util.CheckResult
+import com.citywalls.app.util.Diagnostics
 import com.citywalls.app.util.Formatters
 import com.citywalls.app.util.ImageQuality
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +16,25 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(private val settingsRepository: SettingsRepository) : ViewModel() {
+class SettingsViewModel(
+    private val settingsRepository: SettingsRepository,
+    private val diagnostics: Diagnostics
+) : ViewModel() {
+
+    private val _checks = MutableStateFlow<List<CheckResult>?>(null)
+    val checks: StateFlow<List<CheckResult>?> = _checks.asStateFlow()
+
+    private val _checking = MutableStateFlow(false)
+    val checking: StateFlow<Boolean> = _checking.asStateFlow()
+
+    fun runConnectionCheck() {
+        if (_checking.value) return
+        viewModelScope.launch {
+            _checking.value = true
+            _checks.value = diagnostics.run()
+            _checking.value = false
+        }
+    }
 
     val settings: StateFlow<AppSettings> = settingsRepository.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppSettings())
