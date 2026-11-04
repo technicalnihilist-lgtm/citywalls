@@ -47,16 +47,19 @@ class HomeViewModel(private val repository: WallpaperRepository) : ViewModel() {
         job = viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
 
-            val (featuredResult, popularResult, recentResult) = coroutineScope {
-                val featured = async {
-                    repository.search(
-                        query = "city skyline night",
-                        offset = 0,
-                        sort = SearchSort.POPULAR,
-                        categoryKey = "featured",
-                        categoryLabel = "Featured"
-                    )
-                }
+            // 1. Featured shelf first, so the screen fills as soon as one request lands.
+            val featuredResult = repository.search(
+                query = "city skyline night",
+                offset = 0,
+                sort = SearchSort.POPULAR,
+                categoryKey = "featured",
+                categoryLabel = "Featured"
+            )
+            val featured = featuredResult.getOrNull()?.items.orEmpty().take(8)
+            _state.update { it.copy(featured = featured, isLoading = featured.isEmpty()) }
+
+            // 2. The remaining shelves in parallel.
+            coroutineScope {
                 val popular = async {
                     repository.search(
                         query = "famous landmark city",
@@ -75,37 +78,31 @@ class HomeViewModel(private val repository: WallpaperRepository) : ViewModel() {
                         categoryLabel = "Recently added"
                     )
                 }
-                Triple(featured.await(), popular.await(), recent.await())
-            }
-
-            val featuredItems = featuredResult.getOrNull()?.items.orEmpty().take(8)
-            val popularItems = popularResult.getOrNull()?.items.orEmpty().take(6)
-            val recentItems = recentResult.getOrNull()?.items.orEmpty().take(6)
-
-            val cityEntries = Catalog.featuredCities().take(6)
-            val headers = coroutineScope {
-                cityEntries.map { entry ->
-                    async { TrendingCity(entry, repository.headerFor(entry)) }
-                }.awaitAll()
-            }
-
-            val failure = featuredResult.exceptionOrNull()
-                ?: popularResult.exceptionOrNull()
-                ?: recentResult.exceptionOrNull()
-
-            _state.value = HomeUiState(
-                isLoading = false,
-                featured = featuredItems,
-                popular = popularItems,
-                recent = recentItems,
-                trendingCities = headers,
-                error = if (featuredItems.isEmpty() && popularItems.isEmpty()) {
-                    failure?.message
-                        ?: "No licensed wallpapers came back this time. Every image is checked against its Wikimedia Commons license before display."
-                } else {
-                    null
+                val popularItems = popular.await().getOrNull()?.items.orEmpty().take(6)
+                val recentItems = recent.await().getOrNull()?.items.orEmpty().take(6)
+                _state.update {
+                    it.copy(popular = popularItems, recent = recentItems, isLoading = false)
                 }
-            )
+            }
+
+            // 3. City headers are the slowest, so they fill in last.
+            val cities = Catalog.featuredCities().take(6)
+            val headers = coroutineScope {
+                cities.map { entry -> async { TrendingCity(entry, repository.headerFor(entry)) } }.awaitAll()
+            }
+
+            _state.update { current ->
+                current.copy(
+                    trendingCities = headers,
+                    isLoading = false,
+                    error = if (current.featured.isEmpty() && current.popular.isEmpty()) {
+                        "Could not reach Wikimedia Commons. Check your connection, then tap refresh."
+                    } else {
+                        null
+                    }
+                )
+            }
         }
     }
+
 }

@@ -95,12 +95,22 @@ class WallpaperRepository(
 
             remember(items)
 
-            val continueOffset = response.continueToken?.gsrOffset
-            val hasMore = continueOffset != null && continueOffset > offset && items.isNotEmpty()
+            // The API may paginate another prop first (categories), in which case the
+            // continue block carries clcontinue and no gsroffset. Any continue block
+            // means more pages exist, so advance by what was actually returned.
+            val continueToken = response.continueToken
+            val returned = pages.size
+            val explicitOffset = continueToken?.gsrOffset
+            val nextOffset = when {
+                continueToken == null -> null
+                explicitOffset != null && explicitOffset > offset -> explicitOffset
+                returned > 0 -> offset + returned
+                else -> null
+            }
             val result = WallpaperPage(
                 items = items,
-                nextOffset = if (hasMore) continueOffset else null,
-                hasMore = hasMore
+                nextOffset = nextOffset,
+                hasMore = nextOffset != null && items.isNotEmpty()
             )
 
             synchronized(lock) {
