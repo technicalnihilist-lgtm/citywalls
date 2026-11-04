@@ -6,7 +6,6 @@ import com.citywalls.app.data.prefs.SettingsRepository
 import com.citywalls.app.data.remote.CommonsApi
 import com.citywalls.app.data.remote.CommonsParamsInterceptor
 import com.citywalls.app.data.repository.WallpaperRepository
-import com.citywalls.app.util.NetworkStatus
 import com.citywalls.app.util.WallpaperApplier
 import com.citywalls.app.util.WallpaperDownloader
 import kotlinx.coroutines.CoroutineScope
@@ -70,8 +69,6 @@ class AppContainer(context: Context) {
     )
 
     val imageClient: OkHttpClient = okHttpClient
-
-    val networkStatus: NetworkStatus = NetworkStatus(appContext)
 
     val downloader: WallpaperDownloader = WallpaperDownloader(appContext, okHttpClient)
 

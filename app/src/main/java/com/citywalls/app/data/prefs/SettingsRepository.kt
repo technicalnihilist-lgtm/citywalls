@@ -29,8 +29,7 @@ enum class DownloadQuality(val key: String, val label: String, val description: 
 data class AppSettings(
     val imageQuality: ImageQuality = ImageQuality.BALANCED,
     val downloadQuality: DownloadQuality = DownloadQuality.PREVIEW,
-    val pureBlack: Boolean = true,
-    val wifiOnlyDownloads: Boolean = false
+    val pureBlack: Boolean = true
 )
 
 class SettingsRepository(private val context: Context) {
@@ -39,15 +38,13 @@ class SettingsRepository(private val context: Context) {
         val imageQuality = stringPreferencesKey("image_quality")
         val downloadQuality = stringPreferencesKey("download_quality")
         val pureBlack = booleanPreferencesKey("pure_black")
-        val wifiOnly = booleanPreferencesKey("wifi_only_downloads")
     }
 
     val settings: Flow<AppSettings> = context.settingsDataStore.data.map { preferences ->
         AppSettings(
             imageQuality = ImageQuality.fromKey(preferences[Keys.imageQuality]),
             downloadQuality = DownloadQuality.fromKey(preferences[Keys.downloadQuality]),
-            pureBlack = preferences[Keys.pureBlack] ?: true,
-            wifiOnlyDownloads = preferences[Keys.wifiOnly] ?: false
+            pureBlack = preferences[Keys.pureBlack] ?: true
         )
     }
 
@@ -61,10 +58,6 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setPureBlack(enabled: Boolean) {
         context.settingsDataStore.edit { it[Keys.pureBlack] = enabled }
-    }
-
-    suspend fun setWifiOnlyDownloads(enabled: Boolean) {
-        context.settingsDataStore.edit { it[Keys.wifiOnly] = enabled }
     }
 
     suspend fun cacheSizeBytes(): Long = withContext(Dispatchers.IO) {

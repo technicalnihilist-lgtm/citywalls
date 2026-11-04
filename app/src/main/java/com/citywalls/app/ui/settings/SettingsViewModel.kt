@@ -47,10 +47,6 @@ class SettingsViewModel(private val settingsRepository: SettingsRepository) : Vi
         viewModelScope.launch { settingsRepository.setPureBlack(enabled) }
     }
 
-    fun setWifiOnly(enabled: Boolean) {
-        viewModelScope.launch { settingsRepository.setWifiOnlyDownloads(enabled) }
-    }
-
     fun clearCache() {
         viewModelScope.launch {
             settingsRepository.clearCaches()

@@ -141,11 +141,10 @@ fun SettingsScreen(
                         color = TextSecondary
                     )
                     Spacer(Modifier.height(6.dp))
-                    SwitchRow(
-                        title = "Download on Wi-Fi only",
-                        subtitle = "Skip large downloads on mobile data",
-                        checked = settings.wifiOnlyDownloads,
-                        onCheckedChange = viewModel::setWifiOnly
+                    Text(
+                        text = "Downloads use whatever connection is available, mobile data included.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary
                     )
                 }
             }

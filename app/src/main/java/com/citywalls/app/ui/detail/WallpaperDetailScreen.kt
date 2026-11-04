@@ -78,7 +78,6 @@ fun WallpaperDetailScreen(
                 downloader = container.downloader,
                 applier = container.applier,
                 settingsRepository = container.settingsRepository,
-                networkStatus = container.networkStatus,
                 wallpaperId = wallpaperId
             )
         }
