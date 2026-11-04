@@ -2,7 +2,7 @@
 
 **[github.com/technicalnihilist-lgtm/citywalls](https://github.com/technicalnihilist-lgtm/citywalls)** · Android wallpaper app for city photography
 
-![CityWalls screens](docs/screenshots/00-all-screens.png)
+![CityWalls screens](docs/screenshots/00-all-screens.jpg)
 
 A premium Android wallpaper app for city photography — twenty world cities, four
 architecture collections, twelve street-photography moods and ten landmarks.
@@ -25,10 +25,11 @@ wallpaper-site content.
 
 ## 1. Install the APK
 
-`dist/CityWalls-1.0.1-release.apk` (8.0 MB, versionCode 2) is signed with the
+`CityWalls-1.0.1-release.apk` (8.0 MB, versionCode 2) is signed with the
 CityWalls release key — `CN=CityWalls, OU=Mobile, O=CityWalls, L=Mumbai, C=IN`,
 SHA-256 `9cdd64c3ff767d9bf9cbc360b22ed2f441e626450cd6e94dd1ac94eaf5a84711`.
-A debug build is also kept at `dist/CityWalls-1.0.0-debug.apk` for comparison.
+The APK is not committed here (8 MB binary); build it with the release command in
+section 2, or use the copy delivered with this project.
 
 ```
 adb install -r dist/CityWalls-1.0.1-release.apk
