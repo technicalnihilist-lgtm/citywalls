@@ -2,7 +2,7 @@
 
 **[github.com/technicalnihilist-lgtm/citywalls](https://github.com/technicalnihilist-lgtm/citywalls)** · Android wallpaper app for city photography
 
-> **[Download the signed APK](https://github.com/technicalnihilist-lgtm/citywalls/releases/download/v1.0.1/CityWalls-1.0.1-release.apk)** · 8.0 MB · versionCode 2 · `adb install -r CityWalls-1.0.1-release.apk`
+> **[Download the signed APK](https://github.com/technicalnihilist-lgtm/citywalls/releases/download/v1.0.2/CityWalls-1.0.2-release.apk)** · 8.0 MB · versionCode 3 · `adb install -r CityWalls-1.0.2-release.apk`
 
 ![CityWalls screens](docs/screenshots/00-all-screens.jpg)
 
@@ -18,7 +18,7 @@ wallpaper-site content.
 | | |
 | --- | --- |
 | Package | `com.citywalls.app` |
-| Version | 1.0.1 (versionCode 2) |
+| Version | 1.0.2 (versionCode 3) |
 | Min / target SDK | 24 / 35 |
 | APK size | 8.0 MB (release, signed) |
 | Build status | `assembleRelease` succeeds, APK signed and verified |
@@ -30,9 +30,9 @@ wallpaper-site content.
 `CityWalls-1.0.1-release.apk` (8.0 MB, versionCode 2) is signed with the
 CityWalls release key — `CN=CityWalls, OU=Mobile, O=CityWalls, L=Mumbai, C=IN`,
 SHA-256 `9cdd64c3ff767d9bf9cbc360b22ed2f441e626450cd6e94dd1ac94eaf5a84711`.
-The APK lives on the [v1.0.1 release page](https://github.com/technicalnihilist-lgtm/citywalls/releases/tag/v1.0.1)
+The APK lives on the [v1.0.2 release page](https://github.com/technicalnihilist-lgtm/citywalls/releases/tag/v1.0.2)
 rather than in the tree (8 MB binary), or build it with the command in section 2.
-SHA-256: `cd70d3a25b658bdb59049670f5ec07eb99a1bee0191cdad6f5ae751592a84362`.
+SHA-256: `c629b13f163ef6a89b29205c8ed27421ae42356d878d301c548aaa4cc4137698`.
 
 ```
 adb install -r dist/CityWalls-1.0.1-release.apk
@@ -252,7 +252,20 @@ note ("resized thumbnail; cropped to your screen when applied").
   (password in `keystore/README.txt`). Replace it with your own upload key before
   publishing to Play, and never commit the keystore.
 
-## 13. Attribution
+## 13. Changelog
+
+**1.0.2** (versionCode 3)
+- Fixed: "Download on Wi-Fi only" was persisted but never enforced. Downloads now
+  check the active connection and refuse to run over mobile data.
+
+**1.0.1** (versionCode 2)
+- First signed release build, custom vector icon set, screenshot set, docs.
+
+**1.0.0** (versionCode 1)
+- Initial Compose app: catalog, live Commons feed, license gate, favorites,
+  downloads, wallpaper manager integration.
+
+## 14. Attribution
 
 Photography: Wikimedia Commons contributors, under the licenses shown on each
 wallpaper's detail screen. CityWalls is not affiliated with the Wikimedia

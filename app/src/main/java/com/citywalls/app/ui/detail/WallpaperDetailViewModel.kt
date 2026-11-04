@@ -7,6 +7,7 @@ import com.citywalls.app.data.prefs.SettingsRepository
 import com.citywalls.app.data.repository.WallpaperRepository
 import com.citywalls.app.domain.Wallpaper
 import com.citywalls.app.domain.WallpaperTarget
+import com.citywalls.app.util.NetworkStatus
 import com.citywalls.app.util.WallpaperApplier
 import com.citywalls.app.util.WallpaperDownloader
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,7 @@ class WallpaperDetailViewModel(
     private val downloader: WallpaperDownloader,
     private val applier: WallpaperApplier,
     private val settingsRepository: SettingsRepository,
+    private val networkStatus: NetworkStatus,
     private val wallpaperId: String
 ) : ViewModel() {
 
@@ -84,6 +86,19 @@ class WallpaperDetailViewModel(
         viewModelScope.launch {
             _state.update { it.copy(isBusy = true, busyLabel = "Downloading", message = null) }
             val settings = settingsRepository.settings.first()
+
+            // Honour the "download on Wi-Fi only" preference before touching the network.
+            if (settings.wifiOnlyDownloads && networkStatus.isMetered()) {
+                _state.update {
+                    it.copy(
+                        isBusy = false,
+                        busyLabel = null,
+                        message = "Wi-Fi only downloads are on. Connect to Wi-Fi, or turn that option off in Settings."
+                    )
+                }
+                return@launch
+            }
+
             val original = settings.downloadQuality == DownloadQuality.ORIGINAL
             downloader.download(wallpaper, original).fold(
                 onSuccess = { saved ->
