@@ -87,9 +87,14 @@ fun HomeScreen(
             )
         }
 
-        val error = state.error
-        if (error != null && state.featured.isEmpty()) {
-            item { ErrorState(message = error, onRetry = viewModel::refresh) }
+        if (!state.isLoading && state.featured.isEmpty()) {
+            item {
+                ErrorState(
+                    message = state.error
+                        ?: "No wallpapers arrived from Wikimedia Commons. Check your internet connection, then tap try again.",
+                    onRetry = viewModel::refresh
+                )
+            }
         }
 
         if (state.isLoading && state.featured.isEmpty()) {

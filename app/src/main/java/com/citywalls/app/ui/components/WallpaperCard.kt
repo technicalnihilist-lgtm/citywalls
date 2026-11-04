@@ -24,6 +24,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,23 +59,58 @@ fun WallpaperCard(
     onFavoriteClick: (() -> Unit)? = null
 ) {
     val shape = RoundedCornerShape(20.dp)
+    var reloadKey by remember(wallpaper.id) { mutableIntStateOf(0) }
+    var failed by remember(wallpaper.id) { mutableStateOf(false) }
     Box(
         modifier = modifier
             .aspectRatio(0.68f)
             .clip(shape)
             .background(SurfaceElevated)
             .border(1.dp, GlassBorder, shape)
-            .clickable(onClick = onClick)
+            .clickable {
+                if (failed) {
+                    reloadKey += 1
+                    failed = false
+                } else {
+                    onClick()
+                }
+            }
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(wallpaper.thumbUrl)
+                .memoryCacheKey(wallpaper.id + "-" + reloadKey)
                 .crossfade(true)
                 .build(),
             contentDescription = wallpaper.title,
             contentScale = ContentScale.Crop,
+            onError = { failed = true },
+            onSuccess = { failed = false },
             modifier = Modifier.fillMaxSize()
         )
+
+        if (failed) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.55f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "IMAGE UNAVAILABLE",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Champagne
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = "TAP TO RETRY",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextPrimary
+                    )
+                }
+            }
+        }
 
         Box(
             modifier = Modifier

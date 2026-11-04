@@ -1,3 +1,5 @@
+import java.net.URI
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -14,8 +16,8 @@ android {
         applicationId = "com.citywalls.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 5
-        versionName = "1.0.4"
+        versionCode = 6
+        versionName = "1.0.5"
         vectorDrawables { useSupportLibrary = true }
     }
 
@@ -58,6 +60,10 @@ android {
         compose = true
     }
 
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -96,4 +102,31 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.13")
+    testImplementation("androidx.test:core-ktx:1.6.1")
+}
+
+// The JVM test runner (Robolectric) downloads its Android runtime jars at runtime.
+// When the build environment sits behind a proxy, hand it the same settings Gradle uses.
+tasks.withType<Test>().configureEach {
+    val proxyUrl = System.getenv("HTTPS_PROXY").orEmpty()
+    if (proxyUrl.isNotBlank()) {
+        val uri = URI(proxyUrl)
+        listOf("http", "https").forEach { scheme ->
+            systemProperty("$scheme.proxyHost", uri.host)
+            systemProperty("$scheme.proxyPort", uri.port.toString())
+            uri.userInfo?.split(":")?.let { parts ->
+                systemProperty("$scheme.proxyUser", parts[0])
+                systemProperty("$scheme.proxyPassword", parts.getOrElse(1) { "" })
+            }
+        }
+    }
+    System.getenv("ROBOLECTRIC_JARS")?.let { dir ->
+        systemProperty("robolectric.dependency.dir", dir)
+        systemProperty("robolectric.dependency.repo.url", "file://" + dir)
+    }
+    System.getenv("TEST_TRUSTSTORE")?.let { store ->
+        systemProperty("javax.net.ssl.trustStore", store)
+        systemProperty("javax.net.ssl.trustStorePassword", System.getenv("TEST_TRUSTSTORE_PASSWORD") ?: "changeit")
+    }
 }
