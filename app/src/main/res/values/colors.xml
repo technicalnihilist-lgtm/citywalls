@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="citywalls_black">#FF000000</color>
+    <color name="citywalls_charcoal">#FF0C0C0E</color>
+    <color name="citywalls_champagne">#FFD8C3A5</color>
+    <color name="citywalls_icon_background">#FF0A0A0B</color>
+</resources>

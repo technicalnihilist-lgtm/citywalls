@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-files-path name="citywalls_external" path="Pictures/CityWalls/" />
+    <files-path name="citywalls_internal" path="Pictures/CityWalls/" />
+    <cache-path name="citywalls_cache" path="." />
+</paths>
